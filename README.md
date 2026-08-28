@@ -1,49 +1,51 @@
-# Проект FastAPI-Learn
+# FastAPI-Learn Project
 
-Мой ежедневный проект по изучению и разработке на **FastAPI**.
+My daily project for learning and developing with **FastAPI**.
 
-## 🚀 Пошаговое руководство по запуску
+## 🚀 Step-by-Step Launch Guide
 
-### Шаг 1. Подготовка и создание окружения
-Откройте терминал на компьютере и выполните команды по очереди:
+### Step 1. Preparation and Environment Creation
+Open a terminal on your computer and run the following commands in sequence:
 
-1. **Перейдите в папку с проектом** (замените путь на свой):
+1. **Navigate to the project folder** (replace with your actual path):
    ```bash
-   cd путь/к/вашей/папке/fastapi-learn
+   cd path/to/your/folder/fastapi-learn
    ```
-2. **Создайте виртуальное окружение** (`venv`):
+2. **Create a virtual environment** (`venv`):
    ```bash
    python -m venv venv
    ```
-3. **Активируйте виртуальное окружение**:
-   * Для **Windows**:
+3. **Activate the virtual environment**:
+   * For **Windows**:
      ```bash
      venv\Scripts\activate
      ```
-   * Для **macOS / Linux**:
+   * For **macOS / Linux**:
      ```bash
      source venv/bin/activate
      ```
 
-### Шаг 2. Установка библиотек
-Когда окружение активировано (в начале строки терминала появится надпись `(venv)`), установите сам FastAPI:
+### Step 2. Installing Libraries
+Once the environment is activated (you will see `(venv)` at the beginning of your terminal line), install FastAPI itself:
 ```bash
 pip install fastapi
 ```
-*(При установке пакета `fastapi` в новых версиях инструменты для запуска и сервер `uvicorn` устанавливаются автоматически).*
+*(When installing the `fastapi` package in newer versions, the startup tools and the `uvicorn` server are installed automatically).*
 
-### Шаг 3. Запуск сервера
-Для запуска используйте одну из новых команд (в зависимости от того, что вам нужно):
+### Step 3. Launching the Server
+To start the server, use one of the new commands (depending on your needs):
 
-* **Для разработки** (сервер будет сам перезагружаться при изменении кода):
+* **For development** (the server will auto-reload whenever the code changes):
   ```bash
   fastapi dev main.py
   ```
-* **Для обычного запуска** (без автоперезагрузки):
+* **For standard launch** (without auto-reload):
   ```bash
   fastapi run main.py
   ```
 
-### Шаг 4. Проверка в браузере
-* Главная страница: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-* Документация API (Swagger): [http://127.0.0](http://127.0.0)
+### Step 4. Checking in the Browser
+* Main page: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+* API Documentation (Swagger): [http://127.0.0](http://127.0.0)
+
+The description inside the code is in Russian because I'm from Russia.
