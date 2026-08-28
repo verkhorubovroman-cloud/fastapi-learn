@@ -4,6 +4,19 @@ My daily project for learning and developing with **FastAPI**.
 
 ## 🚀 Step-by-Step Launch Guide
 
+### Prerequisites
+Before you begin, make sure you have **Python** installed on your system.
+* **Check if Python is installed:**
+  Open your terminal and run:
+  ```bash
+  python --version
+  ```
+  or
+  ```bash
+  python3 --version
+  ```
+* **If not installed:** Download and install the latest stable version from the official website: [python.org](https://python.org). *Note for Windows users: Ensure you check the box **"Add python.exe to PATH"** during installation.*
+
 ### Step 1. Preparation and Environment Creation
 Open a terminal on your computer and run the following commands in sequence:
 
@@ -47,5 +60,6 @@ To start the server, use one of the new commands (depending on your needs):
 ### Step 4. Checking in the Browser
 * Main page: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 * API Documentation (Swagger): [http://127.0.0](http://127.0.0)
+
 
 The description inside the code is in Russian because I'm from Russia.
