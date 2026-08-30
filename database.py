@@ -7,6 +7,7 @@ def load_db():
     except FileNotFoundError:
         return []
 
+#сохранаем в json
 def save_db(data):
     with open ("db.json", "w") as f:
         json.dump(data, f)
