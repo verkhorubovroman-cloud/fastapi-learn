@@ -1,12 +1,12 @@
 # импортируем все нужные библиотеки
-from fastapi import FastAPI, HTTPException, Depends, Query, Path
-from pydantic import BaseModel, AfterValidator
+from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body
+from pydantic import BaseModel, AfterValidator, Field
 from enum import Enum
 from fastapi.security import APIKeyHeader, HTTPBasic, HTTPBasicCredentials
 from secrets import compare_digest
 from auth import get_key, get_user, admin_only
 from database import db, save_db
-from typing import Annotated
+from typing import Annotated, Literal
 from valid import check_valid_id
 import random
 
@@ -28,9 +28,25 @@ class Model(str, Enum):
     a = "a"  # Разрешённое значение "a"
     b = "e"  # Разрешённое значение "e"
 
+class FilterParams(BaseModel):
+    model_config = {"extra" : "forbid"}
+    
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+
+class User(BaseModel):
+    username : str
+    full_name : str | None = None
+
 
 # Функция для регистрации эндпойнтов
 def register_endpoints(app: FastAPI):
+    @app.put("/user_and_item/")
+    async def user_and_item(item :  Item, user : User, importance: Annotated[int, Body()]):
+        result = {"item" : item, "user" : user, "importance" : importance}
+        return result
     #эндпойнт для проверки правильности написания параметра в get запросе
     @app.get("/once_fixedquery/")
     async def once_fixdquery(q: Annotated[str | None, Query(pattern = "^fixedquery$")]):
@@ -56,16 +72,23 @@ def register_endpoints(app: FastAPI):
     # Эндпойнт с path-параметром item_id (часть URL)
     # Например, /items/5 вернёт {"item_id": 5}
     @app.get("/items/{item_id}")
-    async def read_item(item_id: int, q : str = None, key=Depends(get_key)):
+    async def read_item(item_id: int = Path(title="The ID of the item to get", ge=1), q : str = None, size : Annotated[float | None, Query(gt=0, lt=10.5)] = None, key=Depends(get_key)):
         # item_id: int -- параметр должен быть числом
-        return {"item_id": item_id, "q":q}
+        result = {"item_id" : item_id}
+        if q:
+            result.update({"q" : q})
+        if size:
+            result.update({"size" : size})
+        return result
 
     #здесь всё в перемешку |: и он пока ничего не обновляет
     @app.put("/items/{item_id}")
-    async def update_item(item_id: Annotated[int, Path(title = "The ID of the item to get")], item: Item, q: Annotated[str | None, Query(title= "Query string", description="this is q", min_length= 3, max_length = 50)]=None):
-        result = {"item_id" : item_id, **item.model_dump()}
+    async def update_item(item_id: Annotated[int, Path(title = "The ID of the item to get", ge=1, le=1000)], item: Annotated[Item | None, Body(embed = True)] = None, q: Annotated[str | None, Query(title= "Query string", description="this is q", min_length= 3, max_length = 50)]=None):
+        result = {"item_id" : item_id}
         if q:
             result.update({"q":q})
+        if item:
+            result.update({**item.model_dump()})
         return result
 
     #этот эндпоинт возращает значение если овтаризация удалась
@@ -113,4 +136,7 @@ def register_endpoints(app: FastAPI):
         else:
             id, item = random.choice(list(data.items()))
         return {"id" : id, "item" : item}
-        
+
+    @app.get("/filter/")
+    async def filter(filter_query : Annotated[FilterParams, Query()]):
+        return filter_query
