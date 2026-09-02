@@ -17,17 +17,25 @@ data = {
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2"
 }
 
+class Image(BaseModel):
+    url: str
+    name : str
+
 #создаём класс для значениий только которые могут быть обозначены 
 class Item(BaseModel):
-    name: str
-    price : float
-    description : str | None = None # Описание — строка или ничего
+    name: str 
+    price : float = Field(gt=0, lt=100, description="The price must be greater than zero or no later than a hundred")
+    description : str | None = Field(default=None, title="The description of the item", max_length=300), None # Описание — строка или ничего
+    tax: float | None = None
+    tags: list[str] = list()
+    image : Image | None = None
 # Определяем Enum — список разрешённых значений
 
 class Model(str, Enum):
     a = "a"  # Разрешённое значение "a"
     b = "e"  # Разрешённое значение "e"
 
+#query параметры
 class FilterParams(BaseModel):
     model_config = {"extra" : "forbid"}
     
@@ -43,6 +51,7 @@ class User(BaseModel):
 
 # Функция для регистрации эндпойнтов
 def register_endpoints(app: FastAPI):
+    #простой ввод данных и плюс один параметр не список а простой ввод
     @app.put("/user_and_item/")
     async def user_and_item(item :  Item, user : User, importance: Annotated[int, Body()]):
         result = {"item" : item, "user" : user, "importance" : importance}
@@ -117,8 +126,7 @@ def register_endpoints(app: FastAPI):
     @app.post("/items/")
     async def create_item(item: Item):
         #проверяем цену
-        if item.price > 100:
-            raise HTTPException(status_code=400, detail="слишком дорогой")
+        # .dict() превращает Pydantic-модель в обычный Python-словарь (dict)
         db.append(item.dict())
         save_db(db)
         return item
@@ -137,6 +145,7 @@ def register_endpoints(app: FastAPI):
             id, item = random.choice(list(data.items()))
         return {"id" : id, "item" : item}
 
+    #функция с query параметрами в классе
     @app.get("/filter/")
     async def filter(filter_query : Annotated[FilterParams, Query()]):
         return filter_query
