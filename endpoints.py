@@ -1,6 +1,6 @@
 # импортируем все нужные библиотеки
 from fastapi import FastAPI, HTTPException, Depends, Query, Path, Body
-from pydantic import BaseModel, AfterValidator, Field
+from pydantic import BaseModel, AfterValidator, Field, HttpUrl
 from enum import Enum
 from fastapi.security import APIKeyHeader, HTTPBasic, HTTPBasicCredentials
 from secrets import compare_digest
@@ -17,6 +17,13 @@ data = {
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2"
 }
 
+class image(BaseModel):
+    url: HttpUrl
+    name : str
+
+class read_url(BaseModel):
+    imag : list[image] | None = None
+
 class Image(BaseModel):
     url: str
     name : str
@@ -25,10 +32,10 @@ class Image(BaseModel):
 class Item(BaseModel):
     name: str 
     price : float = Field(gt=0, lt=100, description="The price must be greater than zero or no later than a hundred")
-    description : str | None = Field(default=None, title="The description of the item", max_length=300), None # Описание — строка или ничего
+    description : str | None = Field(default=None, title="The description of the item", max_length=300)# Описание — строка или ничего
     tax: float | None = None
     tags: list[str] = list()
-    image : Image | None = None
+    imag : Image | None = None
 # Определяем Enum — список разрешённых значений
 
 class Model(str, Enum):
@@ -53,18 +60,21 @@ class User(BaseModel):
 def register_endpoints(app: FastAPI):
     #простой ввод данных и плюс один параметр не список а простой ввод
     @app.put("/user_and_item/")
-    async def user_and_item(item :  Item, user : User, importance: Annotated[int, Body()]):
-        result = {"item" : item, "user" : user, "importance" : importance}
+    async def user_and_item(item :  Item, user : User, importance: Annotated[int, Body()], images: list[image]):
+        result = {"item" : item, "user" : user, "importance" : importance, "Images" : images}
         return result
+    
     #эндпойнт для проверки правильности написания параметра в get запросе
     @app.get("/once_fixedquery/")
     async def once_fixdquery(q: Annotated[str | None, Query(pattern = "^fixedquery$")]):
         return q
+    
     #здесь находятся многие параметры query
     @app.get("/for_q/")
     async def once_q(q : Annotated[list[str], Query(min_ligth = 3, alias = "item_query", deprecated = True)] = ["foo", "bar"]):
         register = {"q" : q}
         return register
+    
     #определяет что ты написал в путь если не a или e тогда он выдаёт ошибку
     @app.get("/models/{model}")
     async def get_model(model: Model):
@@ -72,7 +82,10 @@ def register_endpoints(app: FastAPI):
         if model == Model.a:
                 return ["haaaallo a"]
         return ["hello e"]
-    
+
+    @app.put("/get_url/")
+    async def get_url(get_url:read_url):
+        return get_url
     # Эндпойнт для главной страницы
     @app.get("/")
     async def root():
