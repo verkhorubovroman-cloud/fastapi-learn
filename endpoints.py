@@ -21,8 +21,6 @@ class image(BaseModel):
     url: HttpUrl
     name : str
 
-class read_url(BaseModel):
-    imag : list[image] | None = None
 
 class Image(BaseModel):
     url: str
@@ -36,6 +34,10 @@ class Item(BaseModel):
     tax: float | None = None
     tags: list[str] = list()
     imag : Image | None = None
+
+class read_url(BaseModel):
+    imag : list[image] | None = None
+    next : list[Item]
 # Определяем Enum — список разрешённых значений
 
 class Model(str, Enum):
@@ -65,7 +67,7 @@ def register_endpoints(app: FastAPI):
         return result
     
     #эндпойнт для проверки правильности написания параметра в get запросе
-    @app.get("/once_fixedquery/")
+    @app.get("/only_fixedquery/")
     async def once_fixdquery(q: Annotated[str | None, Query(pattern = "^fixedquery$")]):
         return q
     
@@ -83,9 +85,11 @@ def register_endpoints(app: FastAPI):
                 return ["haaaallo a"]
         return ["hello e"]
 
+    #принимает только url
     @app.put("/get_url/")
     async def get_url(get_url:read_url):
         return get_url
+    
     # Эндпойнт для главной страницы
     @app.get("/")
     async def root():
